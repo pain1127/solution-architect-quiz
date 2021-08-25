@@ -1,11 +1,144 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script type="text/javascript">
+      $(document).ready(function(){
+        const no = '<%-list.no%>';
+        const answer = JSON.parse('<%-JSON.stringify(list.answer)%>');
+        shuffle(answer);
+        let html = '';
+        // console.log(answer.length);
+        for(let i=0; i<answer.length; i++)
+        {
+          // console.log(answer[i]);
+          html += '<div class="form-check">';
+          html += '<input class="form-check-input" type="checkbox" value="' + answer[i].name + '" name="chkAnswer' + answer[i].name + '">';
+          html += '<label class="form-check-label" for="flexCheckDefault" id="lblAnswer' + answer[i].name + '">';
+          html += answer[i].text;
+          html += '</label> ';
+          html += '</div><br> ';   
+        }
+        // console.log(html);
+        // console.log(answer);
+        $("#divAnswer").html(html);
+        $('#btnNext').on('click', () => {
+          $(location).attr('href', '/');
+        });
+
+        $('#btnSubmit').on('click', () => {
+          const no = '<%-list.no%>';
+          const answer = JSON.parse('<%-JSON.stringify(list.answer)%>');
+          const question = $("#txtQuestion").val();
+          let result = true;
+          for(let i=0; i<answer.length; i++)
+          {
+            if(answer[i].correct)
+            {
+              $("#lblAnswer" + answer[i].name).attr('style', "color:red");
+
+              if($('input:checkbox[name="chkAnswer' + answer[i].name + '"]').is(":checked") !== true) {
+                console.log('test');
+                result = false;
+              }
+
+            }
+          }
+
+          const data = {no : parseInt(no), question: question, result : result}
+          axios.post('/check', data).then((res) => {
+            console.log(res.data);
+            // if (res.data.result === 'success') {
+            //   alert('삭제하였습니다.');
+            //   location.href = '/setting/channel/list';
+            // } else {
+            //   alert(res.data.result.message);
+            // }
+          });
+
+          if(result)
+          {
+            alert(no + '정답.');
+          } else {
+            alert(no + '틀림.');
+          }
+
+          return false;
+        });
+
+      });
+
+      function shuffle(a) {
+        let j, x, i;
+        for (let i = a.length; i; i -= 1) {
+          j = Math.floor(Math.random() * i);
+          x = a[i - 1];
+          a[i - 1] = a[j];
+          a[j] = x;
+        }
+     //   return a;
+        // 무작위로 배열 출력
+      }
+
+    </script>
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
+    -->
+    <main>
+      <div class="container py-4">
+        <header class="pb-3 mb-4 border-bottom">
+          <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+            <span class="fs-4">AWS Solution Achitect Professional</span>
+          </a>
+        </header>
+    
+        <div class="p-5 mb-4 bg-light rounded-3">
+          <form>
+            <div class="row mb-3">
+              <label for="inputEmail3" class="col-sm-2 col-form-label">번호</label>
+              <div class="col-sm-10">
+                <%= list.no %>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="inputEmail3" class="col-sm-2 col-form-label">문제</label>
+              <div class="col-sm-10">
+               
+                <textarea class="form-control" id="txtQuestion" name="txtQuestion" rows="20" > <%= list.question %></textarea>
+              </div>
+            </div>
+            <fieldset class="row mb-3">
+              <legend class="col-form-label col-sm-2 pt-0">답변</legend>
+              <div id='divAnswer' class="col-sm-10">
+              </div>
+            </fieldset>
+            <button id='btnSubmit' type="submit" class="btn btn-primary">정답</button>
+            <button id='btnNext' type="submit" class="btn btn-primary">다음</button>
+          </form>
+        </div>
+    
+        <footer class="pt-3 mt-4 text-muted border-top">
+          &copy; 2021
+        </footer>
+      </div>
+    </main>
+
   </body>
 </html>
