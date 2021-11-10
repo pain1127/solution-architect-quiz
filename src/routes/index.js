@@ -44,6 +44,19 @@ router.get('/', async function(req, res, next) {
   res.render('index', { title: 'Express', list: q[0] });
 });
 
+// 문제 리스트 로딩
+
+router.get('/list', async function(req, res, next) {
+  const mongoClient = req.app.locals.mongoClient;
+
+  // console.log(rnd);
+  const q = await mongoClient.db('skpark').collection('quiz').find({'record.use' : false}).sort({ 'no' : 1}).limit(1).toArray();
+
+
+  res.render('index', { title: 'Express', list: q[0] });
+});
+
+// 정답 체크
 
 router.post('/check', async (req,res,next) => {
   const mongoClient = req.app.locals.mongoClient;
@@ -60,11 +73,15 @@ router.post('/check', async (req,res,next) => {
   res.send('test');
 });
 
+// 문제 등록 화면 로딩 
+
 router.get('/regist', async (req,res,next) => {
   const mongoClient = req.app.locals.mongoClient;
   const q = await mongoClient.db('skpark').collection('quiz').find().sort({'no' : -1}).limit(1).toArray();
   res.render('regist', {no : q[0].no +1});
 });
+
+// 문제 등록 처리 
 
 router.post('/regist', async (req,res,next) => {
   const mongoClient = req.app.locals.mongoClient;
@@ -72,7 +89,7 @@ router.post('/regist', async (req,res,next) => {
 
   let item = {
     "no" : parseInt(req.body.txtNo, 10),
-    "question" : req.body.txtQuestion.replace(/[\r\n]/g, ""),
+    "question" : req.body.txtQuestion,
     "answer" : [],
     "record" : {
       "use" : false,
