@@ -30,12 +30,23 @@
         // console.log(html);
         // console.log(answer);
         $("#divAnswer").html(html);
-        $('#btnNext').on('click', () => {
-          $(location).attr('href', '/');
-        });
 
-        $('#btnSubmit').on('click', () => {
-          const no = '<%-list.no%>';
+      });
+
+      function shuffle(a) {
+        let j, x, i;
+        for (let i = a.length; i; i -= 1) {
+          j = Math.floor(Math.random() * i);
+          x = a[i - 1];
+          a[i - 1] = a[j];
+          a[j] = x;
+        }
+     //   return a;
+        // 무작위로 배열 출력
+      }
+
+      function answer() {
+        const no = '<%-list.no%>';
           const answer = JSON.parse('<%-JSON.stringify(list.answer)%>');
           const question = $("#txtQuestion").val();
           let result = true;
@@ -53,16 +64,16 @@
             }
           }
 
-          const data = {no : parseInt(no), question: question, result : result}
-          axios.post('/check', data).then((res) => {
-            console.log(res.data);
-            // if (res.data.result === 'success') {
-            //   alert('삭제하였습니다.');
-            //   location.href = '/setting/channel/list';
-            // } else {
-            //   alert(res.data.result.message);
-            // }
-          });
+          // const data = {no : parseInt(no), question: question, result : result}
+          // axios.post('/check', data).then((res) => {
+          //   console.log(res.data);
+          //   // if (res.data.result === 'success') {
+          //   //   alert('삭제하였습니다.');
+          //   //   location.href = '/setting/channel/list';
+          //   // } else {
+          //   //   alert(res.data.result.message);
+          //   // }
+          // });
 
           if(result)
           {
@@ -72,20 +83,35 @@
           }
 
           return false;
+      }
+
+      function goNext() {
+        const no = '<%-list.no%>';
+        const answer = JSON.parse('<%-JSON.stringify(list.answer)%>');
+        const question = $("#txtQuestion").val();
+        let result = true;
+        for(let i=0; i<answer.length; i++)
+        {
+          if(answer[i].correct)
+          {
+            $("#lblAnswer" + answer[i].name).attr('style', "color:red");
+
+            if($('input:checkbox[name="chkAnswer' + answer[i].name + '"]').is(":checked") !== true) {
+              console.log('test');
+              result = false;
+            }
+
+          }
+        }
+
+        const data = {no : parseInt(no), question: question, result : result}
+        axios.post('/check', data).then((res) => {
+          console.log(res.data);
         });
 
-      });
-
-      function shuffle(a) {
-        let j, x, i;
-        for (let i = a.length; i; i -= 1) {
-          j = Math.floor(Math.random() * i);
-          x = a[i - 1];
-          a[i - 1] = a[j];
-          a[j] = x;
-        }
-     //   return a;
-        // 무작위로 배열 출력
+        // var url = window.location.href.split('?')[0];
+        // window.location = url;
+        // return false;
       }
 
     </script>
@@ -110,11 +136,19 @@
         </header>
     
         <div class="p-5 mb-4 bg-light rounded-3">
-          <form>
+          <form action="/check" method="post">
             <div class="row mb-3">
               <label for="inputEmail3" class="col-sm-2 col-form-label">번호</label>
               <div class="col-sm-10">
                 <%= list.no %>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="inputEmail3" class="col-sm-2 col-form-label">진행상황</label>
+              <div class="col-sm-10">
+                총문제 : <%= info.questionCount %>, 
+                푼문제 : <%= info.useCount %>, 
+                정답수 : <%= info.correctCount %>
               </div>
             </div>
             <div class="row mb-3">
@@ -129,8 +163,8 @@
               <div id='divAnswer' class="col-sm-10">
               </div>
             </fieldset>
-            <button id='btnSubmit' type="submit" class="btn btn-primary">정답</button>
-            <button id='btnNext' type="submit" class="btn btn-primary">다음</button>
+            <button id='btnSubmit' type="submit" class="btn btn-primary" onclick="answer(); return false;">정답</button>
+            <button id='btnNext' type="submit" class="btn btn-primary" onclick="goNext();">다음</button>
           </form>
         </div>
     
