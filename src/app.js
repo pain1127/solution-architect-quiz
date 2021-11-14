@@ -46,7 +46,7 @@ console.log(`[${package.name}] Version : ${package.version}`);
 
 // mongoDB 연결문
 // mongodb://localhost:27017/
-const mongoConnectionUri = `mongodb://localhost:27017`;
+const mongoConnectionUri = `mongodb+srv://pain1127:psk2950!@skpark.cmkar.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 // mongoDB 연결 시도
 const client = new MongoClient(mongoConnectionUri, {
   useNewUrlParser: true,
@@ -54,11 +54,11 @@ const client = new MongoClient(mongoConnectionUri, {
 });
 client.connect()
   .then(() => {
-    console.log(`[${package.name}] mongoDB 연결 성공 : mongodb://localhost:27017`);
+    console.log(`[${package.name}] mongoDB 연결 성공 :` + mongoConnectionUri);
     app.locals.mongoClient = client;
   })
   .catch((error) => {
-    console.log(`[${package.name}] mongoDB 연결 실패 : mongodb://localhost:27017`);
+    console.log(`[${package.name}] mongoDB 연결 실패 : ` + mongoConnectionUri);
     process.exit(1);
   });
 

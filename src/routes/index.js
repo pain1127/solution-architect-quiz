@@ -105,8 +105,8 @@ router.post('/check', async (req,res,next) => {
       correctCount : answer.result === true ? 1 : 0,
     }
   }
-  const q = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$push: { history : history}}, {$set: query});
-
+  const q1 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$push: { history : history}});
+  const q2 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$set: query});
   res.redirect('/quiz?part=' + answer.part);
 });
 
