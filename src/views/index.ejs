@@ -86,6 +86,7 @@
       }
 
       function goNext() {
+        const part = '<%-part%>';
         const no = '<%-list.no%>';
         const answer = JSON.parse('<%-JSON.stringify(list.answer)%>');
         const question = $("#txtQuestion").val();
@@ -104,10 +105,11 @@
           }
         }
 
-        const data = {no : parseInt(no), question: question, result : result}
-        axios.post('/check', data).then((res) => {
-          console.log(res.data);
-        });
+        const data = {no : parseInt(no), question: question, result : result, part: parseInt(part)}
+        $("#txtBody").val(JSON.stringify(data));
+        // axios.post('/check', data).then((res) => {
+        //   console.log(res.data);
+        // });
 
         // var url = window.location.href.split('?')[0];
         // window.location = url;
@@ -131,7 +133,7 @@
       <div class="container py-4">
         <header class="pb-3 mb-4 border-bottom">
           <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
-            <span class="fs-4">AWS Solution Achitect Professional</span>
+            <span class="fs-4">AWS Solution Achitect Professional (SAP-C01) </span>
           </a>
         </header>
     
@@ -152,6 +154,17 @@
               </div>
             </div>
             <div class="row mb-3">
+              <label for="inputEmail3" class="col-sm-2 col-form-label">진행기록</label>
+              <div class="col-sm-10">
+                <%
+                    history.forEach((item) => {
+                      %> 일시 : <%= item.krTime %>,  <%
+                      %> 정답여부 : <%= item.krTime %> <br> <%
+                    });
+                %>
+              </div>
+            </div>
+            <div class="row mb-3">
               <label for="inputEmail3" class="col-sm-2 col-form-label">문제</label>
               <div class="col-sm-10">
                
@@ -165,6 +178,7 @@
             </fieldset>
             <button id='btnSubmit' type="submit" class="btn btn-primary" onclick="answer(); return false;">정답</button>
             <button id='btnNext' type="submit" class="btn btn-primary" onclick="goNext();">다음</button>
+            <input id='txtBody' type="hidden" name="txtBody">
           </form>
         </div>
     
