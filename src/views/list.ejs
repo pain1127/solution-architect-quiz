@@ -18,6 +18,18 @@
         return false;
       }
 
+      function reset(index) {
+        const data = {};
+        axios.put('/reset/'+  index, data).then((res) => {
+          console.log(res.data);
+          if (res.data === 'success') {
+            alert('초기화 하였습니다.');
+          } else {
+            alert(res.data.result.message);
+          }
+        });
+        return false;
+      }
   </script>
 </head>
 
@@ -53,7 +65,10 @@
                 <li>문제 번호 1-228</li>
                 <li>랜덤 문항</li>
               </ul>
-              <button type="button" class="w-100 btn btn-lg btn-primary" onclick="goQuiz(0);">시작하기</button>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-primary btn-lg me-md-2" type="button" onclick="goQuiz(0);">시작하기</button>
+                <button class="btn btn-secondary btn-lg" type="button">초기화</button>
+              </div>
             </div>
           </div>
         </div>
@@ -68,7 +83,10 @@
                 <li>문제 번호 1-50</li>
                 <li>랜덤 문항</li>
               </ul>
-              <button type="button" class="w-100 btn btn-lg btn-primary" onclick="goQuiz(1);">시작하기</button>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-primary btn-lg me-md-2" type="button" onclick="goQuiz(1);">시작하기</button>
+                <button class="btn btn-secondary btn-lg" type="button" onclick="reset(1);">초기화</button>
+              </div>
             </div>
           </div>
         </div>
@@ -83,7 +101,10 @@
                 <li>문제 번호 51-100</li>
                 <li>랜덤 문항</li>
               </ul>
-              <button type="button" class="w-100 btn btn-lg btn-primary" onclick="goQuiz(2);">시작하기</button>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-primary btn-lg me-md-2" type="button" onclick="goQuiz(2);">시작하기</button>
+                <button class="btn btn-secondary btn-lg" type="button">초기화</button>
+              </div>
             </div>
           </div>
         </div>
@@ -100,7 +121,10 @@
                 <li>문제 번호 101-150</li>
                 <li>랜덤 문항</li>
               </ul>
-              <button type="button" class="w-100 btn btn-lg btn-primary" onclick="goQuiz(3);">시작하기</button>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-primary btn-lg me-md-2" type="button" onclick="goQuiz(3);">시작하기</button>
+                <button class="btn btn-secondary btn-lg" type="button">초기화</button>
+              </div>
             </div>
           </div>
         </div>
@@ -115,7 +139,10 @@
                 <li>문제 번호 151-200</li>
                 <li>랜덤 문항</li>
               </ul>
-              <button type="button" class="w-100 btn btn-lg btn-primary" onclick="goQuiz(4);">시작하기</button>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-primary btn-lg me-md-2" type="button" onclick="goQuiz(4);">시작하기</button>
+                <button class="btn btn-secondary btn-lg" type="button">초기화</button>
+              </div>
             </div>
           </div>
         </div>
@@ -130,7 +157,10 @@
                 <li>문제 번호 201-228</li>
                 <li>랜덤 문항</li>
               </ul>
-              <button type="button" class="w-100 btn btn-lg btn-primary" onclick="goQuiz(5);">시작하기</button>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-primary btn-lg me-md-2" type="button" onclick="goQuiz(5);">시작하기</button>
+                <button class="btn btn-secondary btn-lg" type="button">초기화</button>
+              </div>
             </div>
           </div>
         </div>

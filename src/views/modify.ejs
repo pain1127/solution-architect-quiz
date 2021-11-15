@@ -84,21 +84,37 @@
             </div>
             <div class="mb-3">
               <label for="exampleFormControlInput1" class="form-label">E</label>
-              <% if(answer[4].correct) {
-                %> <input type="checkbox" class="form-check-input" id="chkAnswerE" name="chkAnswerE" checked> <%
+
+              <% if(answer.length > 4) {
+                if(answer[4].correct) {
+                  %> <input type="checkbox" class="form-check-input" id="chkAnswerE" name="chkAnswerE" checked> <%
+                } else {
+                  %> <input type="checkbox" class="form-check-input" id="chkAnswerE" name="chkAnswerE"> <%
+                }
+                %> <input type="text" class="form-control" id="txtAnswerE" name="txtAnswerE" placeholder="" value="<%= answer[4].text %>"> <%
               } else {
-                %> <input type="checkbox" class="form-check-input" id="chkAnswerE" name="chkAnswerE"> <%
-              } %>
-              <input type="text" class="form-control" id="txtAnswerE" name="txtAnswerE" placeholder="" value="<%= answer[4].text %>">
+                %> <input type="checkbox" class="form-check-input" id="chkAnswerE" name="chkAnswerE"> 
+                  <input type="text" class="form-control" id="txtAnswerE" name="txtAnswerE" placeholder="" value=""><%
+              } 
+              %>
+              
             </div>
             <div class="mb-3">
               <label for="exampleFormControlInput1" class="form-label">F</label>
-              <% if(answer[5].correct) {
-                %> <input type="checkbox" class="form-check-input" id="chkAnswerF" name="chkAnswerF" checked> <%
+
+              <% if(answer.length > 5) {
+                if(answer[5].correct) {
+                  %> <input type="checkbox" class="form-check-input" id="chkAnswerF" name="chkAnswerF" checked> <%
+                } else {
+                  %> <input type="checkbox" class="form-check-input" id="chkAnswerF" name="chkAnswerF"> <%
+                }
+                %> <input type="text" class="form-control" id="txtAnswerE" name="txtAnswerF" placeholder="" value="<%= answer[5].text %>"> <%
               } else {
-                %> <input type="checkbox" class="form-check-input" id="chkAnswerF" name="chkAnswerF"> <%
-              } %>
-              <input type="text" class="form-control" id="txtAnswerF" name="txtAnswerF" placeholder="" value="<%= answer[5].text %>">
+                %> <input type="checkbox" class="form-check-input" id="chkAnswerF" name="chkAnswerF"> 
+                  <input type="text" class="form-control" id="txtAnswerF" name="txtAnswerF" placeholder="" value=""><%
+              } 
+              %>
+              
             </div>
             <button id='btnSubmit' type="submit" class="btn btn-primary">저장</button>
           </form>

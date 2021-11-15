@@ -28,6 +28,24 @@ router.get('/', async function(req, res, next) {
   res.render('list', { title: 'Express'});
 });
 
+router.put('/reset/:id', async function(req, res, next) {
+  const part = parseInt(req.params.id);
+  const mongoClient = req.app.locals.mongoClient;
+  let q;
+  let query = {
+    'record.use': false,
+    'record.correct': false,
+  }
+  
+  if (part > 0) {
+    q = await mongoClient.db('skpark').collection('quiz').updateMany({'part' : part}, {$set: query});
+  } else {
+    q = await mongoClient.db('skpark').collection('quiz').updateMany({}, {$set: query});
+  }
+
+  res.send('success');
+});
+
 /* GET home page. */
 router.get('/quiz', async function(req, res, next) {
   const params = req.query;
@@ -73,17 +91,22 @@ router.get('/quiz', async function(req, res, next) {
     useCount : use,
     correctCount : correct
   }
-
   let history;
-
-  if(!q[0].history)
+  if(q.length === 0)
   {
-    history = [];
+    res.render('list', { title: 'Express'});
   } else {
-    history = q[0].history;
+    if(!q[0].history)
+    {
+      history = [];
+    } else {
+      history = q[0].history;
+    }
+  
+    res.render('index', { title: 'Express', list: q[0], info, part, history });
   }
 
-  res.render('index', { title: 'Express', list: q[0], info, part, history });
+
 });
 
 // 정답 체크
@@ -105,8 +128,9 @@ router.post('/check', async (req,res,next) => {
       correctCount : answer.result === true ? 1 : 0,
     }
   }
-  const q1 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$push: { history : history}});
-  const q2 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$set: query});
+  const q1 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$set: query});
+  const q2 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$push: { history : history}});
+
   res.redirect('/quiz?part=' + answer.part);
 });
 
