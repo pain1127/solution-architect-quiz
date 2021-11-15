@@ -46,7 +46,7 @@ console.log(`[${package.name}] Version : ${package.version}`);
 
 // mongoDB 연결문
 // mongodb://localhost:27017/
-const mongoConnectionUri = `mongodb+srv://pain1127:psk2950!@skpark.cmkar.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const mongoConnectionUri = config.db;
 // mongoDB 연결 시도
 const client = new MongoClient(mongoConnectionUri, {
   useNewUrlParser: true,
