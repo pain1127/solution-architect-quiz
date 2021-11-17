@@ -18,6 +18,11 @@
         return false;
       }
 
+      function goQuizRegist() {
+        window.location = '/regist';
+        return false;
+      }
+
       function reset(index) {
         const data = {};
         axios.put('/reset/'+  index, data).then((res) => {
@@ -165,7 +170,9 @@
           </div>
         </div>
       </div>
-
+      <div>
+        <button class="btn btn-success btn-lg" type="button" onclick="goQuizRegist();">문제 등록</button>
+      </div>
   </main>
 </body>
 
