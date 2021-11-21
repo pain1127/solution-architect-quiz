@@ -205,11 +205,7 @@ router.post('/modify', async (req,res,next) => {
   let item = {
     "no" : parseInt(req.body.txtNo, 10),
     "question" : req.body.txtQuestion,
-    "answer" : [],
-    "record" : {
-      "use" : false,
-      "correctCount" : 0
-    }
+    "answer" : []
   }
 
   if(req.body.txtAnswerA) {
