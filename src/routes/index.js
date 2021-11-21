@@ -2,28 +2,6 @@ const express = require('express');
 const router = new express.Router();
 const moment = require('moment');
 
-/* GET home page. */
-// router.get('/rand', async function(req, res, next) {
-//   const mongoClient = req.app.locals.mongoClient;
-
-//   const rnd = getRandomInt(1,4);
-
-//   // console.log(rnd);
-//   const q = await mongoClient.db('skpark').collection('quiz').aggregate(
-//     [{
-//       $match: {
-//         'record.use': false
-//       }
-//     }, {
-//       $sample: {
-//         size: 1
-//       }
-//     }]
-//   ).toArray();
-
-//   res.send(q[0]);
-// });
-
 router.get('/', async function(req, res, next) {
   res.render('list', { title: 'Express'});
 });
@@ -121,6 +99,11 @@ router.post('/check', async (req,res,next) => {
   const answer = JSON.parse(req.body.txtBody);
   const question = answer.question.trim();
 
+  const record = await mongoClient.db('skpark').collection('quiz').findOne({'no' : answer.no});
+  const allHistoryCount = record.history.length + 1;
+  const correctCount = record.record.correctCount + (answer.result === true ? 1 : 0);
+  const correctPercent = Math.round(correctCount / allHistoryCount *100);
+
   const history = {
     correct : answer.result,
     krTime : moment().format('YYYY-MM-DD HH:mm:ss')
@@ -131,7 +114,8 @@ router.post('/check', async (req,res,next) => {
     record : {
       use : true,
       correct : answer.result,
-      correctCount : answer.result === true ? 1 : 0,
+      correctCount : correctCount,
+      correctPercent : correctPercent
     }
   }
   const q1 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$set: query});
