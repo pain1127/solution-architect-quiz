@@ -29,6 +29,7 @@ router.get('/quiz', async function(req, res, next) {
   const params = req.query;
   const part = parseInt(params.part);
   const mongoClient = req.app.locals.mongoClient;
+  const setPercent = 80;
 
   let match;
   let all;
@@ -41,18 +42,20 @@ router.get('/quiz', async function(req, res, next) {
   {
     match = {
       'record.use': false,
-      'part' : part
+      'part' : part,
+      'record.correctPercent' : { $lte : setPercent}
     }
-    all = await mongoClient.db('skpark').collection('quiz').count({'part' : part});
-    use = await mongoClient.db('skpark').collection('quiz').count({'record.use' : true, 'part' : part});
-    correct = await mongoClient.db('skpark').collection('quiz').count({'record.correct' : true, 'part' : part});
+    all = await mongoClient.db('skpark').collection('quiz').count({'part' : part, 'record.correctPercent' : { $lte : setPercent}});
+    use = await mongoClient.db('skpark').collection('quiz').count({'record.use' : true, 'part' : part, 'record.correctPercent' : { $lte : setPercent}});
+    correct = await mongoClient.db('skpark').collection('quiz').count({'record.correct' : true, 'part' : part, 'record.correctPercent' : { $lte : setPercent}});
   } else {
     match = {
-      'record.use': false
+      'record.use': false,
+      'record.correctPercent' : { $lte : setPercent}
     }
-    all = await mongoClient.db('skpark').collection('quiz').count({});
-    use = await mongoClient.db('skpark').collection('quiz').count({'record.use' : true});
-    correct = await mongoClient.db('skpark').collection('quiz').count({'record.correct' : true});
+    all = await mongoClient.db('skpark').collection('quiz').count({'record.correctPercent' : { $lte : setPercent}});
+    use = await mongoClient.db('skpark').collection('quiz').count({'record.use' : true, 'record.correctPercent' : { $lte : setPercent}});
+    correct = await mongoClient.db('skpark').collection('quiz').count({'record.correct' : true, 'record.correctPercent' : { $lte : setPercent}});
   }
 
   percent = Math.round(use / all *100);
@@ -102,7 +105,8 @@ router.post('/check', async (req,res,next) => {
   const record = await mongoClient.db('skpark').collection('quiz').findOne({'no' : answer.no});
   const allHistoryCount = record.history.length + 1;
   const correctCount = record.record.correctCount + (answer.result === true ? 1 : 0);
-  const correctPercent = Math.round(correctCount / allHistoryCount *100);
+  const correctPercent =  Math.round(correctCount / allHistoryCount *100);
+
 
   const history = {
     correct : answer.result,
