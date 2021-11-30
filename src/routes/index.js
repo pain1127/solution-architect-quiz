@@ -29,7 +29,7 @@ router.get('/quiz', async function(req, res, next) {
   const params = req.query;
   const part = parseInt(params.part);
   const mongoClient = req.app.locals.mongoClient;
-  const setPercent = 80;
+  const setPercent = 100;
 
   let match;
   let all;
