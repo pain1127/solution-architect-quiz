@@ -14,6 +14,14 @@
       $(document).ready(function(){
         const no = '<%-list.no%>';
         const answer = JSON.parse('<%-JSON.stringify(list.answer)%>');
+        const favorite = '<%-list.favorite%>';
+
+        if (!favorite) {
+          $("#favoriteButton").html('<svg xmlns="http://www.w3.org/2000/svg" onClick="favorite(' + no + ', false);" width="20" height="20" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16"><path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/></svg>');
+        } else {
+          $("#favoriteButton").html('<svg xmlns="http://www.w3.org/2000/svg" onClick="favorite(' + no + ', true);" width="20" height="20" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>');
+        }
+
         shuffle(answer);
         let html = '';
         // console.log(answer.length);
@@ -21,17 +29,35 @@
         {
           // console.log(answer[i]);
           html += '<div class="form-check">';
-          html += '<input class="form-check-input" type="checkbox" value="' + answer[i].name + '" name="chkAnswer' + answer[i].name + '">';
-          html += '<label class="form-check-label" for="flexCheckDefault" id="lblAnswer' + answer[i].name + '">';
+          html += '<input class="form-check-input" id="flexCheckDefault'+ i.toString() +'" type="checkbox" value="' + answer[i].name + '" name="chkAnswer' + answer[i].name + '">';
+          html += '<label class="form-check-label" for="flexCheckDefault'+ i.toString() +'" id="lblAnswer' + answer[i].name + '">';
           html += answer[i].text;
           html += '</label> ';
-          html += '</div><br> ';   
+          // html += (answer[i].correct == true && getCookie('correct') == 'true') ? '<font color="red"> 정답</font>' : '';
+          html += '</div><br> ';
         }
+
         // console.log(html);
         // console.log(answer);
         $("#divAnswer").html(html);
 
+        if(getCookie('correct') == 'true') {
+          for(let i=0; i<answer.length; i++)
+          {
+            if(answer[i].correct)
+            {
+              $("#lblAnswer" + answer[i].name).attr('style', "color:red");
+            }
+          }
+        }
       });
+
+      function getCookie(name) {
+        let matches = document.cookie.match(new RegExp(
+          "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+      }
 
       function shuffle(a) {
         let j, x, i;
@@ -77,9 +103,9 @@
 
           if(result)
           {
-            alert(no + '정답.');
+            alert(no + ' 정답.');
           } else {
-            alert(no + '틀림.');
+            alert(no + ' 틀림.');
           }
 
           return false;
@@ -98,10 +124,8 @@
             $("#lblAnswer" + answer[i].name).attr('style', "color:red");
 
             if($('input:checkbox[name="chkAnswer' + answer[i].name + '"]').is(":checked") !== true) {
-              console.log('test');
               result = false;
             }
-
           }
         }
 
@@ -122,6 +146,22 @@
         return false;
       }
 
+      function reload() {
+        // window.location.href=window.location.href;
+        location.reload();
+      }
+
+      function favorite(index, status) {
+        const data = {'status': status};
+        axios.put('/favorite/'+  index, data).then((res) => {
+          if (!res.data) {
+            $("#favoriteButton").html('<svg xmlns="http://www.w3.org/2000/svg" onClick="favorite(' + index + ', ' + res.data + ');" width="20" height="20" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16"><path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/></svg>');
+          } else {
+            $("#favoriteButton").html('<svg xmlns="http://www.w3.org/2000/svg" onClick="favorite(' + index + ', ' + res.data + ');" width="20" height="20" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>');
+          }
+        });
+        return false;
+      }
     </script>
   </head>
   <body>
@@ -151,6 +191,10 @@
                 <span class="badge rounded-pill bg-dark" onclick="modify();" style="cursor:pointer;">고유번호 : <%= list.no %></span>&nbsp;
                 <span class="badge rounded-pill bg-primary">진행률 : <%= info.percent %>%(<%= info.useCount %>/<%= info.questionCount %>)</span>&nbsp;
                 <span class="badge rounded-pill bg-success">정답률 : <%= info.correctPercent %>%(<%= info.correctCount %>/<%= info.useCount %>)</span>
+                <!-- <i class="bi bi-star-fill"></i> -->
+                <span id="favoriteButton">
+                 
+                </span>
               </div>
             </div>
             <div class="row mb-3">
@@ -176,6 +220,7 @@
             </fieldset>
             <button id='btnSubmit' type="submit" class="btn btn-primary" onclick="answer(); return false;">정답</button>
             <button id='btnNext' type="submit" class="btn btn-primary" onclick="goNext();">다음</button>
+            <button id='btnRefresh' type="button" class="btn btn-primary" onclick="reload();">갱신</button>
             <input id='txtBody' type="hidden" name="txtBody">
           </form>
         </div>
