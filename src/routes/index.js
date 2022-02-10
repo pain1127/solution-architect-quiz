@@ -3,7 +3,9 @@ const router = new express.Router();
 const moment = require('moment');
 
 router.get('/', async function(req, res, next) {
-  res.render('list', { title: 'Express'});
+  const mongoClient = req.app.locals.mongoClient;
+  const favoriteCount = await mongoClient.db('skpark').collection('quiz').count({'favorite' : true});
+  res.render('list', { 'title': 'SAP-C01 v26.25', 'favoriteCount': favoriteCount});
 });
 
 router.put('/reset/:id', async function(req, res, next) {
@@ -16,13 +18,62 @@ router.put('/reset/:id', async function(req, res, next) {
   }
   
   if (part > 0) {
-    q = await mongoClient.db('skpark').collection('quiz').updateMany({'part' : part}, {$set: query});
+    if (part == 6) {
+      q = await mongoClient.db('skpark').collection('quiz').updateMany({favorite: true}, {$set: query});
+    } else {
+      q = await mongoClient.db('skpark').collection('quiz').updateMany({'part' : part}, {$set: query});
+    }
   } else {
     q = await mongoClient.db('skpark').collection('quiz').updateMany({}, {$set: query});
   }
 
   res.send('success');
 });
+
+router.put('/resetfavorite', async function(req, res, next) {
+  const mongoClient = req.app.locals.mongoClient;
+  let q;
+  let query = {
+    'favorite': false,
+  }
+  
+  q = await mongoClient.db('skpark').collection('quiz').updateMany({}, {$set: query});
+
+  res.send('success');
+});
+
+router.put('/resetall', async function(req, res, next) {
+  const mongoClient = req.app.locals.mongoClient;
+  let q;
+  let query = {
+    'record.correctCount': 0,
+    'record.correctPercent': 0,
+    'history': []
+  }
+
+  q = await mongoClient.db('skpark').collection('quiz').updateMany({}, {$set: query});
+
+  res.send('success');
+});
+
+router.put('/favorite/:no', async function(req, res, next) {
+  const mongoClient = req.app.locals.mongoClient;
+  let q;
+
+  let query = {
+    'favorite': !req.body.status,
+  }
+
+  q = await mongoClient.db('skpark').collection('quiz').updateOne({'no': Number(req.params.no)}, {$set: query});
+
+  if (q.modifiedCount > 0) {
+    res.send(!req.body.status);
+  } else {
+    res.send(req.body.status);
+  }
+  
+});
+
 
 /* GET home page. */
 router.get('/quiz', async function(req, res, next) {
@@ -48,6 +99,17 @@ router.get('/quiz', async function(req, res, next) {
     all = await mongoClient.db('skpark').collection('quiz').count({'part' : part, 'record.correctPercent' : { $lte : setPercent}});
     use = await mongoClient.db('skpark').collection('quiz').count({'record.use' : true, 'part' : part, 'record.correctPercent' : { $lte : setPercent}});
     correct = await mongoClient.db('skpark').collection('quiz').count({'record.correct' : true, 'part' : part, 'record.correctPercent' : { $lte : setPercent}});
+     
+    if (part == 6) {
+      match = {
+        'record.use': false,
+        'favorite' : true,
+        'record.correctPercent' : { $lte : setPercent}
+      }
+      all = await mongoClient.db('skpark').collection('quiz').count({'favorite' : true, 'record.correctPercent' : { $lte : setPercent}});
+      use = await mongoClient.db('skpark').collection('quiz').count({'record.use' : true, 'favorite' : true, 'record.correctPercent' : { $lte : setPercent}});
+      correct = await mongoClient.db('skpark').collection('quiz').count({'record.correct' : true, 'favorite' : true, 'record.correctPercent' : { $lte : setPercent}});
+    } 
   } else {
     match = {
       'record.use': false,
@@ -68,8 +130,8 @@ router.get('/quiz', async function(req, res, next) {
     }
   }];
 
-  // console.log(rnd);
   const q = await mongoClient.db('skpark').collection('quiz').aggregate(query).toArray();
+  console.log(JSON.stringify(q));
 
   const info = {
     questionCount : all,
@@ -81,7 +143,8 @@ router.get('/quiz', async function(req, res, next) {
   let history;
   if(q.length === 0)
   {
-    res.render('list', { title: 'Express'});
+    const favoriteCount = await mongoClient.db('skpark').collection('quiz').count({'favorite' : true});
+    res.render('list', { 'title': 'SAP-C01 v26.25', 'favoriteCount': favoriteCount});
   } else {
     if(!q[0].history)
     {
@@ -89,8 +152,7 @@ router.get('/quiz', async function(req, res, next) {
     } else {
       history = q[0].history;
     }
-  
-    res.render('index', { title: 'Express', list: q[0], info, part, history });
+    res.render('index', { title: 'SAP-C01 v26.25', list: q[0], info, part, history });
   }
 
 
@@ -106,7 +168,6 @@ router.post('/check', async (req,res,next) => {
   const allHistoryCount = record.history.length + 1;
   const correctCount = record.record.correctCount + (answer.result === true ? 1 : 0);
   const correctPercent =  Math.round(correctCount / allHistoryCount *100);
-
 
   const history = {
     correct : answer.result,
@@ -124,6 +185,12 @@ router.post('/check', async (req,res,next) => {
   }
   const q1 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$set: query});
   const q2 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$push: { history : history}});
+
+  console.log(answer.result);
+  if (answer.result == false) {
+    const q3 = await mongoClient.db('skpark').collection('quiz').updateOne({'no' : answer.no}, {$set: {favorite: true}});
+    console.log(q3);
+  }
 
   res.redirect('/quiz?part=' + answer.part);
 });
